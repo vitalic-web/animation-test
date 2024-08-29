@@ -39,6 +39,9 @@ const balls: Ball[] = Array.from({ length: 10 }, (_, index) => ({
   number: index + 1,
 }));
 
+let progressWidth = 0; // Начальная ширина полоски
+let remainingTime = 20; // Оставшееся время в секундах
+
 const draw = (): void => {
   const ctx = context.value;
   const cvs = canvas.value;
@@ -47,6 +50,10 @@ const draw = (): void => {
 
   ctx.clearRect(0, 0, cvs.width, cvs.height);
 
+
+
+  // Отрисовка квадратов
+  // ---------------------------------------------------------------
   squares.forEach(({ x, y, size, letter, rotationY }) => {
     ctx.save();
 
@@ -90,20 +97,25 @@ const draw = (): void => {
 
     ctx.restore();
   });
+  // ---------------------------------------------------------------
 
+
+
+  // Отрисовка шаров
+  // ---------------------------------------------------------------
   balls.forEach((ball) => {
     ctx.save();
     ctx.translate(ball.x, ball.y);
-    ctx.rotate((ball.rotation * Math.PI) / 180); // Вращение шарика
+    ctx.rotate((ball.rotation * Math.PI) / 180); // Вращение шара
 
-    // Шарик
+    // Шар
     ctx.beginPath();
     ctx.arc(0, 0, ball.radius, 0, Math.PI * 2);
     ctx.fillStyle = ball.color;
     ctx.fill();
     ctx.closePath();
 
-    // Цифра внутри шарика
+    // Цифра внутри шара
     ctx.fillStyle = '#fff';
     ctx.font = `${ball.radius}px Arial`;
     ctx.textAlign = 'center';
@@ -112,6 +124,26 @@ const draw = (): void => {
 
     ctx.restore();
   });
+  // ---------------------------------------------------------------
+
+
+
+  // Отрисовка полоски с заливкой и таймером
+  // ---------------------------------------------------------------
+  ctx.fillStyle = '#00ff00';
+  ctx.fillRect(0, 85, progressWidth, 10);
+
+  // Текст в середине полоски
+  ctx.fillStyle = '#000';
+  ctx.font = '14px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Делайте ваши ставки', cvs.width / 2, 90);
+
+  // Таймер оставшегося времени справа в полоске
+  ctx.textAlign = 'right';
+  ctx.fillText(`${remainingTime}`, cvs.width - 10, 90);
+  // ---------------------------------------------------------------
 };
 
 onMounted((): void => {
@@ -145,10 +177,27 @@ onMounted((): void => {
     },
   });
 
+  // Анимация заливки полоски в течение 20 секунд и обновление таймера
+  gsap.to({ progress: 0 }, {
+    duration: 20,
+    progress: 1,
+    onUpdate: function () {
+      const cvs = canvas.value;
+      if (cvs) {
+        progressWidth = cvs.width * (this.targets()[0].progress as number);
+        remainingTime = Math.ceil(20 - 20 * (this.targets()[0].progress as number));
+        draw();
+      }
+    },
+    onComplete: () => {
+      remainingTime = 0;
+      draw();
+    },
+  });
+
   draw();
 });
 </script>
-
 
 <template>
   <header>header</header>

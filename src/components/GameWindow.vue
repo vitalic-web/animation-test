@@ -39,6 +39,14 @@ const balls: Ball[] = Array.from({ length: 10 }, (_, index) => ({
   number: index + 1,
 }));
 
+const gridSquares = Array.from({ length: 80 }, (_, index) => ({
+  x: 0,
+  y: 0,
+  size: 0,
+  number: index + 1,
+  hovered: false,
+}));
+
 let progressWidth = 0; // Начальная ширина полоски
 let remainingTime = 20; // Оставшееся время в секундах
 
@@ -57,11 +65,9 @@ const draw = (): void => {
   squares.forEach(({ x, y, size, letter, rotationY }) => {
     ctx.save();
 
-    // Эффект вращения букв
     ctx.translate(x, y);
     let scaleX = Math.cos(rotationY * Math.PI / 180);
 
-    // При повороте отображать букву так же (не наоборот)
     if (scaleX < 0) {
       scaleX = -scaleX;
     }
@@ -69,24 +75,20 @@ const draw = (): void => {
     ctx.transform(scaleX, 0, 0, 1, 0, 0);
 
     if (letter) {
-      // Квадрат
       ctx.fillStyle = '#000';
       ctx.fillRect(-size / 2, -size / 2, size, size);
 
-      // Буква внутри квадрата
       ctx.fillStyle = '#fff';
       ctx.font = `${size * 0.8}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(letter, 0, 0);
     } else {
-      // Круг
       ctx.beginPath();
       ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
       ctx.fillStyle = '#000';
       ctx.fill();
 
-      // Текст внутри круга
       ctx.fillStyle = '#fff';
       ctx.font = `${size * 0.3}px Arial`;
       ctx.textAlign = 'center';
@@ -97,7 +99,6 @@ const draw = (): void => {
 
     ctx.restore();
   });
-  // ---------------------------------------------------------------
 
 
 
@@ -106,16 +107,14 @@ const draw = (): void => {
   balls.forEach((ball) => {
     ctx.save();
     ctx.translate(ball.x, ball.y);
-    ctx.rotate((ball.rotation * Math.PI) / 180); // Вращение шара
+    ctx.rotate((ball.rotation * Math.PI) / 180);
 
-    // Шар
     ctx.beginPath();
     ctx.arc(0, 0, ball.radius, 0, Math.PI * 2);
     ctx.fillStyle = ball.color;
     ctx.fill();
     ctx.closePath();
 
-    // Цифра внутри шара
     ctx.fillStyle = '#fff';
     ctx.font = `${ball.radius}px Arial`;
     ctx.textAlign = 'center';
@@ -133,17 +132,62 @@ const draw = (): void => {
   ctx.fillStyle = '#00ff00';
   ctx.fillRect(0, 85, progressWidth, 10);
 
-  // Текст в середине полоски
   ctx.fillStyle = '#000';
   ctx.font = '14px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('Делайте ваши ставки', cvs.width / 2, 90);
 
-  // Таймер оставшегося времени справа в полоске
   ctx.textAlign = 'right';
   ctx.fillText(`${remainingTime}`, cvs.width - 10, 90);
   // ---------------------------------------------------------------
+
+
+
+  // Отрисовка сетки из квадратов
+  // ---------------------------------------------------------------
+  const gridWidth = cvs.width * 0.6; // 60% от ширины canvas
+  const squareSize = gridWidth / 10;
+  const horizontalOffset = 25; // Горизонтальный отступ
+  const verticalOffset = 105; // Вертикальный отступ
+
+  gridSquares.forEach((square, index) => {
+    const col = index % 10;
+    const row = Math.floor(index / 10);
+
+    square.x = col * squareSize + horizontalOffset;
+    square.y = row * squareSize + verticalOffset;
+    square.size = squareSize;
+
+    ctx.fillStyle = square.hovered ? 'orange' : '#000';
+    ctx.fillRect(square.x, square.y, square.size, square.size);
+
+    ctx.fillStyle = '#fff';
+    ctx.font = `${square.size * 0.4}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(square.number.toString(), square.x + square.size / 2, square.y + square.size / 2);
+  });
+  // ---------------------------------------------------------------
+};
+
+const checkHover = (event: MouseEvent): void => {
+  const cvs = canvas.value;
+  if (!cvs) return;
+
+  const rect = cvs.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+
+  gridSquares.forEach(square => {
+    square.hovered =
+      mouseX >= square.x &&
+      mouseX <= square.x + square.size &&
+      mouseY >= square.y &&
+      mouseY <= square.y + square.size;
+  });
+
+  draw();
 };
 
 onMounted((): void => {
@@ -153,7 +197,8 @@ onMounted((): void => {
 
   if (!context.value) return;
 
-  // Анимация вращения букв в квадратах
+  canvas.value.addEventListener('mousemove', checkHover);
+
   gsap.to(squares, {
     duration: 2,
     rotationY: 180,
@@ -162,22 +207,19 @@ onMounted((): void => {
     onUpdate: draw,
   });
 
-  // Анимация выкатывания шариков с вращением против часовой стрелки
   gsap.to(balls, {
     duration: 1,
-    x: (i) => 350 + i * 60, // Позиция шарика после выкатывания
+    x: (i) => 350 + i * 60,
     rotation: -360,
     ease: "power1.out",
-    stagger: 0.5, // Задержка между началом движения каждого шарика
+    stagger: 0.5,
     onUpdate: draw,
     onComplete: () => {
-      // Возвращение вращения в исходное положение
       balls.forEach((ball) => (ball.rotation = 0));
       draw();
     },
   });
 
-  // Анимация заливки полоски в течение 20 секунд и обновление таймера
   gsap.to({ progress: 0 }, {
     duration: 20,
     progress: 1,

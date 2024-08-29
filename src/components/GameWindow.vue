@@ -10,12 +10,18 @@ interface Square {
   rotationY: number;
 }
 
-const handleMouseMove = (): void => {
-  // console.log('handleMouseMove');
-};
+interface Ball {
+  x: number;
+  y: number;
+  radius: number;
+  color: string;
+  rotation: number;
+  number: number;
+}
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
+
 const squares: Square[] = [
   { x: 50, y: 50, size: 50, letter: 'K', rotationY: 0 },
   { x: 110, y: 50, size: 50, letter: 'E', rotationY: 0 },
@@ -24,6 +30,15 @@ const squares: Square[] = [
   { x: 290, y: 50, size: 50, letter: '', rotationY: 0 },
 ];
 
+const balls: Ball[] = Array.from({ length: 10 }, (_, index) => ({
+  x: 400 + index * 60,
+  y: 50,
+  radius: 25,
+  color: '#3498db',
+  rotation: 0,
+  number: index + 1,
+}));
+
 const draw = (): void => {
   const ctx = context.value;
   const cvs = canvas.value;
@@ -31,14 +46,15 @@ const draw = (): void => {
   if (!ctx || !cvs) return;
 
   ctx.clearRect(0, 0, cvs.width, cvs.height);
+
   squares.forEach(({ x, y, size, letter, rotationY }) => {
     ctx.save();
 
-    // эффект вращения
+    // Эффект вращения букв
     ctx.translate(x, y);
     let scaleX = Math.cos(rotationY * Math.PI / 180);
 
-    // при повороте отображать букву так же (не наоборот)
+    // При повороте отображать букву так же (не наоборот)
     if (scaleX < 0) {
       scaleX = -scaleX;
     }
@@ -46,24 +62,24 @@ const draw = (): void => {
     ctx.transform(scaleX, 0, 0, 1, 0, 0);
 
     if (letter) {
-      // квадрат
+      // Квадрат
       ctx.fillStyle = '#000';
       ctx.fillRect(-size / 2, -size / 2, size, size);
 
-      // буква внутри квадрата
+      // Буква внутри квадрата
       ctx.fillStyle = '#fff';
       ctx.font = `${size * 0.8}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(letter, 0, 0);
     } else {
-      // круг
+      // Круг
       ctx.beginPath();
       ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
       ctx.fillStyle = '#000';
       ctx.fill();
 
-      // текст внутри круга
+      // Текст внутри круга
       ctx.fillStyle = '#fff';
       ctx.font = `${size * 0.3}px Arial`;
       ctx.textAlign = 'center';
@@ -71,6 +87,28 @@ const draw = (): void => {
       ctx.fillText('4', 0, -size * 0.2);
       ctx.fillText('min', 0, size * 0.2);
     }
+
+    ctx.restore();
+  });
+
+  balls.forEach((ball) => {
+    ctx.save();
+    ctx.translate(ball.x, ball.y);
+    ctx.rotate((ball.rotation * Math.PI) / 180); // Вращение шарика
+
+    // Шарик
+    ctx.beginPath();
+    ctx.arc(0, 0, ball.radius, 0, Math.PI * 2);
+    ctx.fillStyle = ball.color;
+    ctx.fill();
+    ctx.closePath();
+
+    // Цифра внутри шарика
+    ctx.fillStyle = '#fff';
+    ctx.font = `${ball.radius}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(ball.number.toString(), 0, 0);
 
     ctx.restore();
   });
@@ -83,6 +121,7 @@ onMounted((): void => {
 
   if (!context.value) return;
 
+  // Анимация вращения букв в квадратах
   gsap.to(squares, {
     duration: 2,
     rotationY: 180,
@@ -91,13 +130,29 @@ onMounted((): void => {
     onUpdate: draw,
   });
 
+  // Анимация выкатывания шариков с вращением против часовой стрелки
+  gsap.to(balls, {
+    duration: 1,
+    x: (i) => 350 + i * 60, // Позиция шарика после выкатывания
+    rotation: -360,
+    ease: "power1.out",
+    stagger: 0.5, // Задержка между началом движения каждого шарика
+    onUpdate: draw,
+    onComplete: () => {
+      // Возвращение вращения в исходное положение
+      balls.forEach((ball) => (ball.rotation = 0));
+      draw();
+    },
+  });
+
   draw();
 });
 </script>
 
+
 <template>
   <header>header</header>
-  <canvas ref="canvas" width="1000" height="600" @mousemove="handleMouseMove"></canvas>
+  <canvas ref="canvas" width="1000" height="600"></canvas>
   <footer>footer</footer>
 </template>
 

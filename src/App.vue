@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import GameWindow from "./components/GameWindow.vue";
 </script>
 
 <template>
-  <div>
-    Hello Animation!
-  </div>
+  <GameWindow />
 </template>
 
 <style scoped>

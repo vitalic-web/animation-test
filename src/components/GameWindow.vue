@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import gsap from "gsap";
+import KImage from '../assets/K.png';
+import EImage from '../assets/E.png';
+import NImage from '../assets/N.png';
+import OImage from '../assets/O.png';
+import FourMinImage from '../assets/4min.png';
 
-interface Square {
+interface ImagesData {
   x: number;
   y: number;
   size: number;
-  letter: string;
+  img: HTMLImageElement;
   rotationY: number;
 }
 
@@ -22,13 +27,32 @@ interface Ball {
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 
-const squares: Square[] = [
-  { x: 50, y: 50, size: 50, letter: 'K', rotationY: 0 },
-  { x: 110, y: 50, size: 50, letter: 'E', rotationY: 0 },
-  { x: 170, y: 50, size: 50, letter: 'N', rotationY: 0 },
-  { x: 230, y: 50, size: 50, letter: 'O', rotationY: 0 },
-  { x: 290, y: 50, size: 50, letter: '', rotationY: 0 },
+const images: { [key: string]: HTMLImageElement } = {
+  'K': new Image(),
+  'E': new Image(),
+  'N': new Image(),
+  'O': new Image(),
+  '4 min': new Image(),
+};
+
+images['K'].src = KImage;
+images['E'].src = EImage;
+images['N'].src = NImage;
+images['O'].src = OImage;
+images['4 min'].src = FourMinImage;
+
+const imagesData: ImagesData[] = [
+  { x: 50, y: 50, size: 50, img: images['K'], rotationY: 0 },
+  { x: 110, y: 50, size: 50, img: images['E'], rotationY: 0 },
+  { x: 170, y: 50, size: 50, img: images['N'], rotationY: 0 },
+  { x: 230, y: 50, size: 50, img: images['O'], rotationY: 0 },
+  { x: 290, y: 50, size: 50, img: images['4 min'], rotationY: 0 },
 ];
+
+const spacing = 30; // Настраиваемое значение для расстояния между изображениями
+imagesData.forEach((image, index) => {
+  image.x = 50 + index * spacing;
+});
 
 const balls: Ball[] = Array.from({ length: 10 }, (_, index) => ({
   x: 400 + index * 60,
@@ -50,6 +74,25 @@ const gridSquares = Array.from({ length: 80 }, (_, index) => ({
 let progressWidth = 0; // Начальная ширина полоски
 let remainingTime = 20; // Оставшееся время в секундах
 
+const loadImages = (): Promise<void> => {
+  return new Promise((resolve) => {
+    let imagesLoaded = 0;
+    const totalImages = Object.keys(images).length;
+
+    Object.values(images).forEach(img => {
+      img.onload = () => {
+        imagesLoaded++;
+        if (imagesLoaded === totalImages) {
+          resolve();
+        }
+      };
+      img.onerror = () => {
+        console.error(`Failed to load image: ${img.src}`);
+      };
+    });
+  });
+};
+
 const draw = (): void => {
   const ctx = context.value;
   const cvs = canvas.value;
@@ -58,52 +101,29 @@ const draw = (): void => {
 
   ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-
-
-  // Отрисовка квадратов
-  // ---------------------------------------------------------------
-  squares.forEach(({ x, y, size, letter, rotationY }) => {
+  // Отрисовка изображений
+  imagesData.forEach(({ x, y, size, img, rotationY }) => {
     ctx.save();
 
+    // Эффект вращения
     ctx.translate(x, y);
     let scaleX = Math.cos(rotationY * Math.PI / 180);
 
+    // При повороте отображать изображение так же (не наоборот)
     if (scaleX < 0) {
       scaleX = -scaleX;
     }
 
+    // Применение трансформации
     ctx.transform(scaleX, 0, 0, 1, 0, 0);
 
-    if (letter) {
-      ctx.fillStyle = '#000';
-      ctx.fillRect(-size / 2, -size / 2, size, size);
-
-      ctx.fillStyle = '#fff';
-      ctx.font = `${size * 0.8}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(letter, 0, 0);
-    } else {
-      ctx.beginPath();
-      ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
-      ctx.fillStyle = '#000';
-      ctx.fill();
-
-      ctx.fillStyle = '#fff';
-      ctx.font = `${size * 0.3}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('4', 0, -size * 0.2);
-      ctx.fillText('min', 0, size * 0.2);
-    }
+    // Отрисовка изображения
+    ctx.drawImage(img, -size / 4.2, -size / 4.2, size / 2.2, size / 2.2);
 
     ctx.restore();
   });
 
-
-
   // Отрисовка шаров
-  // ---------------------------------------------------------------
   balls.forEach((ball) => {
     ctx.save();
     ctx.translate(ball.x, ball.y);
@@ -123,12 +143,8 @@ const draw = (): void => {
 
     ctx.restore();
   });
-  // ---------------------------------------------------------------
-
-
 
   // Отрисовка полоски с заливкой и таймером
-  // ---------------------------------------------------------------
   ctx.fillStyle = '#00ff00';
   ctx.fillRect(0, 85, progressWidth, 10);
 
@@ -140,12 +156,8 @@ const draw = (): void => {
 
   ctx.textAlign = 'right';
   ctx.fillText(`${remainingTime}`, cvs.width - 10, 90);
-  // ---------------------------------------------------------------
-
-
 
   // Отрисовка сетки из квадратов
-  // ---------------------------------------------------------------
   const gridWidth = cvs.width * 0.6; // 60% от ширины canvas
   const squareSize = gridWidth / 10;
   const horizontalOffset = 25; // Горизонтальный отступ
@@ -168,7 +180,6 @@ const draw = (): void => {
     ctx.textBaseline = 'middle';
     ctx.fillText(square.number.toString(), square.x + square.size / 2, square.y + square.size / 2);
   });
-  // ---------------------------------------------------------------
 };
 
 const checkHover = (event: MouseEvent): void => {
@@ -190,7 +201,7 @@ const checkHover = (event: MouseEvent): void => {
   draw();
 };
 
-onMounted((): void => {
+onMounted(async (): Promise<void> => {
   if (!canvas.value) return;
 
   context.value = canvas.value.getContext('2d');
@@ -199,11 +210,14 @@ onMounted((): void => {
 
   canvas.value.addEventListener('mousemove', checkHover);
 
-  gsap.to(squares, {
-    duration: 2,
+  await loadImages();
+
+  gsap.to(imagesData, {
+    duration: 1.0,
     rotationY: 180,
     repeat: -1,
     ease: "power2.inOut",
+    stagger: 0.2,
     onUpdate: draw,
   });
 
@@ -242,25 +256,11 @@ onMounted((): void => {
 </script>
 
 <template>
-  <header>header</header>
   <canvas ref="canvas" width="1000" height="600"></canvas>
-  <footer>footer</footer>
 </template>
 
 <style scoped>
-header {
-  width: 100%;
-  height: 20px;
-  border: 1px solid black;
-}
-
 canvas {
-  border: 1px solid black;
-}
-
-footer {
-  width: 100%;
-  height: 20px;
   border: 1px solid black;
 }
 </style>

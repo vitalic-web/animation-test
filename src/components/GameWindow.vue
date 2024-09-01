@@ -6,8 +6,11 @@ import EImage from '../assets/E.png';
 import NImage from '../assets/N.png';
 import OImage from '../assets/O.png';
 import FourMinImage from '../assets/4min.png';
+import BackgroundHeader from '../assets/header.png';
 
-interface KenoLetters {
+type IImages = Record<string, HTMLImageElement>;
+
+interface IKenoLetters {
   x: number;
   y: number;
   size: number;
@@ -18,34 +21,36 @@ interface KenoLetters {
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 
-const kenoLettersImages: { [key: string]: HTMLImageElement } = {
+const images: IImages = {
   'K': new Image(),
   'E': new Image(),
   'N': new Image(),
   'O': new Image(),
   '4 min': new Image(),
+  'backgroundHeader': new Image(),
 };
 
-kenoLettersImages['K'].src = KImage;
-kenoLettersImages['E'].src = EImage;
-kenoLettersImages['N'].src = NImage;
-kenoLettersImages['O'].src = OImage;
-kenoLettersImages['4 min'].src = FourMinImage;
+images['K'].src = KImage;
+images['E'].src = EImage;
+images['N'].src = NImage;
+images['O'].src = OImage;
+images['4 min'].src = FourMinImage;
+images['backgroundHeader'].src = BackgroundHeader;
 
-const kenoLetters: KenoLetters[] = [
-  { x: 20, y: 20, size: 40, img: kenoLettersImages['K'], rotationY: 0 },
-  { x: 63, y: 20, size: 40, img: kenoLettersImages['E'], rotationY: 0 },
-  { x: 106, y: 20, size: 40, img: kenoLettersImages['N'], rotationY: 0 },
-  { x: 149, y: 20, size: 40, img: kenoLettersImages['O'], rotationY: 0 },
-  { x: 200, y: 16, size: 50, img: kenoLettersImages['4 min'], rotationY: 0 },
+const kenoLetters: IKenoLetters[] = [
+  { x: 15, y: 22, size: 40, img: images['K'], rotationY: 0 },
+  { x: 55, y: 22, size: 40, img: images['E'], rotationY: 0 },
+  { x: 95, y: 22, size: 40, img: images['N'], rotationY: 0 },
+  { x: 135, y: 22, size: 40, img: images['O'], rotationY: 0 },
+  { x: 185, y: 18, size: 50, img: images['4 min'], rotationY: 0 },
 ];
 
 const loadImages = (): Promise<void> => {
   return new Promise((resolve) => {
     let imagesLoaded = 0;
-    const totalImages = Object.keys(kenoLettersImages).length;
+    const totalImages = Object.keys(images).length;
 
-    Object.values(kenoLettersImages).forEach(img => {
+    Object.values(images).forEach(img => {
       img.onload = () => {
         imagesLoaded++;
         if (imagesLoaded === totalImages) {
@@ -66,6 +71,13 @@ const draw = (): void => {
   if (!ctx || !cvs) return;
 
   ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+  // Отрисовка фона хэдера
+  const bgImage = images['backgroundHeader'];
+  if (bgImage.complete) {
+    const bgWidth = cvs.width; // Ширина на весь canvas
+    ctx.drawImage(bgImage, 0, 0, bgWidth, 190);
+  }
 
   // Отрисовка изображений
   kenoLetters.forEach(({ x, y, size, img, rotationY }) => {
@@ -90,6 +102,11 @@ const draw = (): void => {
 
     ctx.restore();
   });
+
+  // Отрисовка текста
+  ctx.fillStyle = 'orange';
+  ctx.font = '30px Arial';
+  ctx.fillText('#799813', 56, 100);
 };
 
 onMounted(async (): Promise<void> => {

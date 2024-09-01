@@ -1,5 +1,5 @@
 import { Ref } from 'vue';
-import gsap from "gsap";
+import gsap from 'gsap';
 import { IBall } from '../types';
 import { generateUniqueRandomNumbers } from '../utils';
 import { useAnimationImages } from '../composables/useAnimationImages';

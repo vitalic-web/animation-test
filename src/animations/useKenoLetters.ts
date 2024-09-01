@@ -1,4 +1,4 @@
-import gsap from "gsap";
+import gsap from 'gsap';
 import { IKenoLetters } from '../types';
 import { useAnimationImages } from '../composables/useAnimationImages';
 

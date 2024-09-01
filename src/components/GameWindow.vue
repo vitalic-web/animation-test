@@ -4,6 +4,7 @@ import { useAnimationImages } from '../composables/useAnimationImages';
 import { useKenoLetters } from '../animations/useKenoLetters';
 import { useBalls } from '../animations/useBalls';
 import { useHeader } from '../statics/useHeader';
+import { useProgressLine } from '../animations/useProgressLine';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
@@ -12,6 +13,7 @@ const { loadImages } = useAnimationImages();
 const { drawKenoLetters, animateKenoLetters } = useKenoLetters();
 const { createBalls, drawBalls, animateBalls } = useBalls();
 const { drawBackgroundHeader, drawHeaderText } = useHeader();
+const { drawProgressLine, animateProgressLine } = useProgressLine();
 
 const draw = (): void => {
   const ctx = context.value;
@@ -21,17 +23,11 @@ const draw = (): void => {
 
   ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-  // Отрисовка фона хэдера
   drawBackgroundHeader(cvs, ctx);
-
-  // Отрисовка текста
   drawHeaderText(ctx);
-
-  // Отрисовка вращающихся букв
   drawKenoLetters(ctx);
-
-  // Отрисовка шариков
   drawBalls(context);
+  drawProgressLine(cvs, ctx);
 };
 
 onMounted(async (): Promise<void> => {
@@ -45,6 +41,8 @@ onMounted(async (): Promise<void> => {
   animateBalls(draw);
 
   animateKenoLetters(draw);
+
+  animateProgressLine(canvas, draw);
 
   draw();
 });

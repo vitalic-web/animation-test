@@ -2,10 +2,10 @@ import { Ref } from 'vue';
 import gsap from 'gsap';
 import { IBall } from '../types';
 import { generateUniqueRandomNumbers } from '../utils';
-import { useAnimationImages } from '../composables/useAnimationImages';
+import { useImages } from '../composables/useImages';
 
 export function useBalls() {
-  const { images } = useAnimationImages();
+  const { images } = useImages();
   const balls: IBall[] = [];
 
   const createBalls = (canvas: Ref<HTMLCanvasElement | null>) => {

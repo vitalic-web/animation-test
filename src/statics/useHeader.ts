@@ -1,7 +1,7 @@
-import { useAnimationImages } from '../composables/useAnimationImages';
+import { useImages } from '../composables/useImages';
 
 export function useHeader() {
-  const { images } = useAnimationImages();
+  const { images } = useImages();
   const bgImage = images['backgroundHeader'];
 
   const drawBackgroundHeader = (cvs: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {

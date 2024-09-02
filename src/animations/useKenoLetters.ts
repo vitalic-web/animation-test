@@ -1,9 +1,9 @@
 import gsap from 'gsap';
 import { IKenoLetters } from '../types';
-import { useAnimationImages } from '../composables/useAnimationImages';
+import { useImages } from '../composables/useImages';
 
 export function useKenoLetters() {
-  const { images } = useAnimationImages();
+  const { images } = useImages();
 
   const kenoLetters: IKenoLetters[] = [
     { x: 15, y: 22, size: 40, img: images['K'], rotationY: 0 },

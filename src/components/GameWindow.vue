@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useAnimationImages } from '../composables/useAnimationImages';
+import { useImages } from '../composables/useImages';
 import { useKenoLetters } from '../animations/useKenoLetters';
 import { useBalls } from '../animations/useBalls';
 import { useHeader } from '../statics/useHeader';
 import { useProgressLine } from '../animations/useProgressLine';
+import { useMain } from '../statics/useMain';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 
-const { loadImages } = useAnimationImages();
+const { loadImages } = useImages();
 const { drawKenoLetters, animateKenoLetters } = useKenoLetters();
 const { createBalls, drawBalls, animateBalls } = useBalls();
 const { drawBackgroundHeader, drawHeaderText } = useHeader();
 const { drawProgressLine, animateProgressLine } = useProgressLine();
+const { drawBackgroundMain } = useMain();
 
 const draw = (): void => {
   const ctx = context.value;
@@ -23,6 +25,7 @@ const draw = (): void => {
 
   ctx.clearRect(0, 0, cvs.width, cvs.height);
 
+  drawBackgroundMain(cvs, ctx);
   drawBackgroundHeader(cvs, ctx);
   drawHeaderText(ctx);
   drawKenoLetters(ctx);

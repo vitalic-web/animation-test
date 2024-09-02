@@ -7,6 +7,7 @@ import FourMinImage from '../assets/4min.png';
 import BackgroundHeader from '../assets/header.png';
 import BallImage from '../assets/ball.png';
 import BackgroundMain from '../assets/bg-green.jpg';
+import CardImage from '../assets/zone.png';
 
 export function useImages() {
   const images: IImages = {
@@ -18,6 +19,7 @@ export function useImages() {
     'backgroundHeader': new Image(),
     'ball': new Image(),
     'backgroundMain': new Image(),
+    'cardImage': new Image(),
   };
 
   images['K'].src = KImage;
@@ -28,6 +30,7 @@ export function useImages() {
   images['backgroundHeader'].src = BackgroundHeader;
   images['ball'].src = BallImage;
   images['backgroundMain'].src = BackgroundMain;
+  images['cardImage'].src = CardImage;
 
   const loadImages = (): Promise<void> => {
     return new Promise((resolve) => {

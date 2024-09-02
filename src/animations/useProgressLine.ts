@@ -63,7 +63,7 @@ export function useProgressLine() {
 
     const timeText = formatTime(remainingTime);
     const timeWidth = ctx.measureText(timeText).width;
-    const timeStartX = cvs.width - 10 - timeWidth;
+    const timeStartX = cvs.width - 60 - timeWidth;
 
     drawTextWithGradient(ctx, timeText, timeStartX, textY, progressWidth);
     

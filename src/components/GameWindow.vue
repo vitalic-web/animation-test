@@ -6,6 +6,7 @@ import { useBalls } from '../animations/useBalls';
 import { useHeader } from '../statics/useHeader';
 import { useProgressLine } from '../animations/useProgressLine';
 import { useMain } from '../statics/useMain';
+import { useCards } from '../animations/useCards';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
@@ -16,6 +17,7 @@ const { createBalls, drawBalls, animateBalls } = useBalls();
 const { drawBackgroundHeader, drawHeaderText } = useHeader();
 const { drawProgressLine, animateProgressLine } = useProgressLine();
 const { drawBackgroundMain } = useMain();
+const { drawCards } = useCards();
 
 const draw = (): void => {
   const ctx = context.value;
@@ -31,6 +33,7 @@ const draw = (): void => {
   drawKenoLetters(ctx);
   drawBalls(context);
   drawProgressLine(cvs, ctx);
+  drawCards(context);
 };
 
 onMounted(async (): Promise<void> => {

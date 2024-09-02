@@ -8,6 +8,9 @@ import BackgroundHeader from '../assets/header.png';
 import BallImage from '../assets/ball.png';
 import BackgroundMain from '../assets/bg-green.jpg';
 import CardImage from '../assets/zone.png';
+import TabImage from '../assets/tab.png';
+import TabPressed from '../assets/tab-pressed.png';
+import TabHovered from '../assets/tab-hovered.png';
 
 export function useImages() {
   const images: IImages = {
@@ -19,7 +22,10 @@ export function useImages() {
     'backgroundHeader': new Image(),
     'ball': new Image(),
     'backgroundMain': new Image(),
-    'cardImage': new Image(),
+    'card': new Image(),
+    'tab': new Image(),
+    'tabPressed': new Image(),
+    'tabHovered': new Image(),
   };
 
   images['K'].src = KImage;
@@ -30,7 +36,10 @@ export function useImages() {
   images['backgroundHeader'].src = BackgroundHeader;
   images['ball'].src = BallImage;
   images['backgroundMain'].src = BackgroundMain;
-  images['cardImage'].src = CardImage;
+  images['card'].src = CardImage;
+  images['tab'].src = TabImage;
+  images['tabPressed'].src = TabPressed;
+  images['tabHovered'].src = TabHovered;
 
   const loadImages = (): Promise<void> => {
     return new Promise((resolve) => {

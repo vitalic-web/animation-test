@@ -7,6 +7,7 @@ import { useHeader } from '../statics/useHeader';
 import { useProgressLine } from '../animations/useProgressLine';
 import { useMain } from '../statics/useMain';
 import { useCards } from '../animations/useCards';
+import { useTabs } from '../statics/useTabs';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
@@ -18,6 +19,7 @@ const { drawBackgroundHeader, drawHeaderText } = useHeader();
 const { drawProgressLine, animateProgressLine } = useProgressLine();
 const { drawBackgroundMain } = useMain();
 const { drawCards } = useCards();
+const { drawTabs } = useTabs();
 
 const draw = (): void => {
   const ctx = context.value;
@@ -34,6 +36,7 @@ const draw = (): void => {
   drawBalls(context);
   drawProgressLine(cvs, ctx);
   drawCards(context);
+  drawTabs(cvs, ctx);
 };
 
 onMounted(async (): Promise<void> => {

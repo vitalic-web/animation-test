@@ -23,7 +23,7 @@ export function useCards() {
       const y = Math.floor(i / cardsPerRow) * cardHeight + offsetY;
 
       // Фон карточки
-      ctx.drawImage(images['cardImage'], x, y, cardWidth, cardHeight);
+      ctx.drawImage(images['card'], x, y, cardWidth, cardHeight);
 
       // Номера внутри карточек
       ctx.fillStyle = '#fff';

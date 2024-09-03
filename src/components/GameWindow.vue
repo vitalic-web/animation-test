@@ -19,7 +19,7 @@ const { drawBackgroundHeader, drawHeaderText } = useHeader();
 const { drawProgressLine, animateProgressLine } = useProgressLine();
 const { drawBackgroundMain } = useMain();
 const { drawCards } = useCards();
-const { drawTabs, handleMouseMove } = useTabs();
+const { drawTabs, handleMouseMove, handleClick } = useTabs();
 
 const draw = (): void => {
   const ctx = context.value;
@@ -56,6 +56,7 @@ onMounted(async (): Promise<void> => {
   draw();
 
   canvas.value?.addEventListener('mousemove', (event) => handleMouseMove(canvas.value!, event));
+  canvas.value?.addEventListener('click', (event) => handleClick(canvas.value!, event)); // Добавляем обработчик клика
 });
 
 </script>

@@ -5,6 +5,7 @@ export function useTabs() {
   const { images } = useImages();
   const texts = ['ИГРА', 'ВИДЕО', 'ИСТОРИЯ', 'СТАТИСТ'];
   const hoverIndex = ref<number | null>(null);
+  const selectedIndex = ref<number | null>(null); // Состояние для хранения выбранного таба
 
   const drawTabs = (cvs: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
     const tabWidth = 80;
@@ -25,8 +26,13 @@ export function useTabs() {
       // Поворачиваем изображение на 90 градусов
       ctx.rotate(-Math.PI / 2);
 
-      // Используем другое изображение, если индекс совпадает с hoverIndex
-      const img = hoverIndex.value === index ? images['tabHovered'] : images['tab'];
+      // Используем другое изображение, если индекс совпадает с hoverIndex или selectedIndex
+      let img = images['tab'];
+      if (selectedIndex.value === index) {
+        img = images['tabPressed']; // Изображение для выбранного таба
+      } else if (hoverIndex.value === index) {
+        img = images['tabHovered']; // Изображение для таба при наведении
+      }
       ctx.drawImage(img, -tabHeight / 2, -tabWidth / 2, tabHeight, tabWidth);
 
       ctx.restore();
@@ -38,7 +44,7 @@ export function useTabs() {
 
       // Добавляем текст поверх изображения
       ctx.font = '26px Arial';
-      ctx.fillStyle = 'black';
+      ctx.fillStyle = selectedIndex.value === index ? '#fff' : '#000';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.scale(1, 1.2); // вытягивание текста по высоте
@@ -90,8 +96,38 @@ export function useTabs() {
     }
   };  
 
+  const handleClick = (cvs: HTMLCanvasElement, event: MouseEvent) => {
+    const tabWidth = 80;
+    const tabHeight = 166;
+    const verticalGap = 7;
+    const paddingTop = 186;
+    const paddingLeft = 224;
+  
+    const rect = cvs.getBoundingClientRect();
+    const scaleX = cvs.width / rect.width;
+    const scaleY = cvs.height / rect.height;
+    const mouseX = (event.clientX - rect.left) * scaleX;
+    const mouseY = (event.clientY - rect.top) * scaleY;
+  
+    texts.forEach((_, index) => {
+      const x = paddingLeft + (cvs.width - tabWidth) / 2;
+      const y = paddingTop + index * (tabHeight + verticalGap);
+      
+      if (
+        mouseX >= x &&
+        mouseX <= x + tabWidth &&
+        mouseY >= y &&
+        mouseY <= y + tabHeight
+      ) {
+        selectedIndex.value = index;
+        drawTabs(cvs, cvs.getContext('2d')!);
+      }
+    });
+  };
+
   return {
     drawTabs,
     handleMouseMove,
+    handleClick,
   };
 }

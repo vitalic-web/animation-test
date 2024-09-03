@@ -87,7 +87,6 @@ export function useTabs() {
       hoverIndex.value = foundIndex;
       drawTabs(cvs, cvs.getContext('2d')!);
   
-      // Смена курсора на pointer при ховере на таб
       if (foundIndex !== null) {
         cvs.style.cursor = 'pointer';
       } else {

@@ -56,7 +56,7 @@ onMounted(async (): Promise<void> => {
   draw();
 
   canvas.value?.addEventListener('mousemove', (event) => handleMouseMove(canvas.value!, event));
-  canvas.value?.addEventListener('click', (event) => handleClick(canvas.value!, event)); // Добавляем обработчик клика
+  canvas.value?.addEventListener('click', (event) => handleClick(canvas.value!, event));
 });
 
 </script>

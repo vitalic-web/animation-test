@@ -19,7 +19,7 @@ const { drawBackgroundHeader, drawHeaderText } = useHeader();
 const { drawProgressLine, animateProgressLine } = useProgressLine();
 const { drawBackgroundMain } = useMain();
 const { drawCards } = useCards();
-const { drawTabs } = useTabs();
+const { drawTabs, handleMouseMove } = useTabs();
 
 const draw = (): void => {
   const ctx = context.value;
@@ -54,7 +54,10 @@ onMounted(async (): Promise<void> => {
   animateProgressLine(canvas, draw);
 
   draw();
+
+  canvas.value?.addEventListener('mousemove', (event) => handleMouseMove(canvas.value!, event));
 });
+
 </script>
 
 <template>
